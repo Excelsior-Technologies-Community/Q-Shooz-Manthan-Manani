@@ -1,8 +1,26 @@
 import React, { useState } from 'react';
 import { PiShoppingCartSimpleLight, PiEyeLight, PiHeartLight, PiArrowsLeftRightLight } from "react-icons/pi";
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../Slices/addToCartSlice';
+import { addToWish } from '../Slices/addToWishSlice';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Section3 = () => {
     const [activeTab, setActiveTab] = useState('FEATURED');
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const wishlistItems = useSelector((state) => state.addToWish.value);
+    const handleWishlistClick = (product) => {
+        const isEnItemInWishlist = wishlistItems.find((item) => item.id === product.id);
+
+        if (isEnItemInWishlist) {
+            navigate('/wishlist');
+        } else {
+            dispatch(addToWish(product));
+        }
+    };
+
 
     const products = [
         {
@@ -20,7 +38,7 @@ const Section3 = () => {
             price: "25.00",
             img1: "https://qx-shooz.myshopify.com/cdn/shop/files/product-17.jpg?v=1731315215&width=720",
             img2: "https://qx-shooz.myshopify.com/cdn/shop/files/product-23_8eeee338-7bad-4c2b-b296-6804d886a41a.jpg?v=1731315325&width=720",
-            colors: ['#000000', '#666666', '#000000'] 
+            colors: ['#000000', '#666666', '#000000']
         },
         {
             id: 3,
@@ -49,10 +67,10 @@ const Section3 = () => {
                     THE LATEST TRENDS IN ATHLETIC FOOTWEAR
                 </p>
                 <h2 className="text-3xl md:text-5xl font-bold text-black mb-6 md:mb-10">Sneakers & Kicks</h2>
-                
+
                 <div className="flex flex-wrap justify-center items-center gap-4 md:gap-10 border-b border-gray-100">
                     {tabs.map((tab) => (
-                        <button 
+                        <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`pb-4 text-[10px] md:text-xs font-bold tracking-widest transition-all duration-300 relative uppercase
@@ -81,13 +99,13 @@ const Section3 = () => {
                                 className="absolute inset-0 w-full h-full object-contain p-4 opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100"
                             />
                         </div>
-                        
+
                         <div className="space-y-1 md:space-y-2">
                             {product.colors && (
                                 <div className="flex gap-2 mb-2">
                                     {product.colors.map((color, i) => (
-                                        <div 
-                                            key={i} 
+                                        <div
+                                            key={i}
                                             className="w-3 h-3 rounded-full border border-gray-300 cursor-pointer"
                                             style={{ backgroundColor: color }}
                                         />
@@ -105,13 +123,14 @@ const Section3 = () => {
 
                         {/* Action Bar - Mobile-first: always visible or slightly faded, Hover on large screens */}
                         <div className="mt-4 md:mt-6 pt-4 border-t border-dotted border-gray-200 flex items-center justify-between opacity-100 md:opacity-0 translate-y-0 md:translate-y-2 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-300">
-                            <button className="flex items-center gap-2 text-[10px] md:text-sm font-bold uppercase tracking-wider hover:text-[#AE3F4F] transition-colors">
+                            <button className="flex items-center gap-2 text-[10px] md:text-sm font-bold uppercase tracking-wider hover:text-[#AE3F4F] transition-colors"
+                                onClick={() => dispatch(addToCart(product))}>
                                 <PiShoppingCartSimpleLight className="text-xl md:text-2xl" />
                                 ADD TO CART
                             </button>
                             <div className="flex items-center gap-3 md:gap-4 text-lg md:text-xl text-gray-700">
                                 <PiEyeLight className="hover:text-[#AE3F4F] cursor-pointer transition-colors" />
-                                <PiHeartLight className="hover:text-[#AE3F4F] cursor-pointer transition-colors" />
+                                <PiHeartLight className="hover:text-[#AE3F4F] cursor-pointer transition-colors" onClick={() => handleWishlistClick(product)} />
                                 <PiArrowsLeftRightLight className="hover:text-[#AE3F4F] cursor-pointer transition-colors" />
                             </div>
                         </div>

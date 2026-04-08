@@ -10,8 +10,16 @@ import Register from './Pages/Register'
 import About from './Pages/About'
 import About2 from './Pages/About2'
 import About3 from './Pages/About3'
+import Faqs from './Pages/Faqs'
+import Contact from './Pages/Contact'
+import Lookbook from './Pages/Lookbook'
+import Wishlist from './Pages/Wishlist'
+import SizeGuide from './Pages/SizeGuide'
+import Collection from './Pages/Collection'
+import SingleProduct from './Pages/SingleProduct'
 
 const App = () => {
+  
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -39,6 +47,13 @@ const App = () => {
         <Route path='/about' element={<About />} />
         <Route path='/about2' element={<About2 />} />
         <Route path='/about3' element={<About3 />} />
+        <Route path='/faqs' element={<Faqs />} />
+        <Route path='/contact' element={<Contact />} />
+        <Route path='/lookbook' element={<Lookbook />} />
+        <Route path='/wishlist' element={<Wishlist />} />
+        <Route path='/size' element={<SizeGuide/>}/>
+        <Route path='collections' element={<Collection/>}/>
+        <Route path='/singleproduct' element={<SingleProduct/>}/>
       </Route>
     </Routes>
     </BrowserRouter>

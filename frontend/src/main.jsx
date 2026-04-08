@@ -7,6 +7,7 @@ import { store } from './store/store' // make sure path is correct
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    
     <Provider store={store}>
       <App />
     </Provider>

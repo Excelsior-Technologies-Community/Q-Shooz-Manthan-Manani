@@ -9,10 +9,13 @@ import { PiArrowsLeftRightLight, PiEyeLight, PiHeartLight, PiShoppingCartSimpleL
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [openSubmenu, setOpenSubmenu] = useState(null);
     const [scrolled, setScrolled] = useState(false);
     const { status, userData } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const cartItems = useSelector((state) => state.addToCart.value)
+    const wishListItems = useSelector((state) => state.addToWish.value)
 
     useEffect(() => {
         const handleScroll = () => {
@@ -26,6 +29,10 @@ const Navbar = () => {
         authService.logout();
         dispatch(logout());
         navigate('/login');
+    };
+
+    const toggleSubmenu = (menuName) => {
+        setOpenSubmenu(openSubmenu === menuName ? null : menuName);
     };
 
     const navLinks = [
@@ -106,9 +113,9 @@ const Navbar = () => {
                 {/* Mobile Menu Toggle */}
                 <button
                     className="lg:hidden p-2 -ml-2 text-gray-900"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    onClick={() => setIsMenuOpen(true)}
                 >
-                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    <Menu size={24} />
                 </button>
 
                 {/* Logo */}
@@ -332,7 +339,7 @@ const Navbar = () => {
                                                 ))}
                                             </ul>
                                         </div>
-                                        
+
                                         {/* Grid Layout Column */}
                                         <div className="flex-1">
                                             <h3 className="font-bold text-[15px] mb-6 text-gray-900 tracking-wide">Grid Layout</h3>
@@ -363,10 +370,10 @@ const Navbar = () => {
                                         <div className="flex-[2] pl-8">
                                             <div className="group/article cursor-pointer">
                                                 <div className="overflow-hidden mb-6 bg-gray-100 rounded-sm">
-                                                    <img 
-                                                        src="https://qx-shooz.myshopify.com/cdn/shop/files/filler1.png?v=1731501348&width=540" 
-                                                        alt="Article Preview" 
-                                                        className="w-full object-cover group-hover/article:scale-105 transition-transform duration-700" 
+                                                    <img
+                                                        src="https://qx-shooz.myshopify.com/cdn/shop/files/filler1.png?v=1731501348&width=540"
+                                                        alt="Article Preview"
+                                                        className="w-full object-cover group-hover/article:scale-105 transition-transform duration-700"
                                                     />
                                                 </div>
                                                 <h4 className="font-bold text-[20px] text-gray-900 group-hover/article:text-[#bc4b5a] transition-colors leading-tight mb-3">Enjoy a 50% Price Slash</h4>
@@ -383,12 +390,19 @@ const Navbar = () => {
                                 <div className="absolute left-0 top-[100%] w-[220px] bg-white shadow-[0_5px_15px_rgba(0,0,0,0.08)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border-t border-gray-100 cursor-default py-4">
                                     <ul className="flex flex-col">
                                         {[
-                                            'About Us 1', 'About Us 2', 'About Us 3',
-                                            'Contact', 'Faqs', 'Lookbook', 'sizeguide', 'Wishlist'
+                                            { name: 'About Us 1', path: '/about' },
+                                            { name: 'About Us 2', path: '/about2' },
+                                            { name: 'About Us 3', path: '/about3' },
+                                            { name: 'Contact', path: '/contact' },
+                                            { name: 'Faqs', path: '/faqs' },
+                                            { name: 'LookBook', path: '/lookbook' },
+                                            { name: 'Size Guide', path: '/size' },
+                                            { name: 'Wishlist', path: '/wishlist' }
+
                                         ].map((item, i) => (
                                             <li key={i}>
-                                                <Link to="#" className="block px-6 py-2.5 text-[15px] text-gray-500 hover:text-[#bc4b5a] hover:translate-x-1 transition-all">
-                                                    {item}
+                                                <Link to={item.path} className="block px-6 py-2.5 text-[15px] text-gray-500 hover:text-[#bc4b5a] hover:translate-x-1 transition-all">
+                                                    {item.name}
                                                 </Link>
                                             </li>
                                         ))}
@@ -407,64 +421,198 @@ const Navbar = () => {
                     <button className="hidden sm:block hover:text-[#bc4b5a] transition-colors cursor-pointer">
                         <User size={22} strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
-                    <button className="hover:text-[#bc4b5a] transition-colors cursor-pointer relative flex items-center">
+                    <button onClick={() => navigate('/wishlist')} className="hover:text-[#bc4b5a] transition-colors cursor-pointer relative flex items-center"
+                    >
                         <Heart size={22} strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6" />
-                        <span className="absolute -bottom-1 -right-2 bg-[#bc4b5a] text-white text-[9px] font-bold w-[15px] h-[15px] flex items-center justify-center rounded-full leading-none">0</span>
+                        <span className="absolute -bottom-1 -right-2 bg-[#bc4b5a] text-white text-[9px] font-bold w-[15px] h-[15px] flex items-center justify-center rounded-full leading-none">
+                            {wishListItems.reduce((total, item) => total + (item.quantity || 1), 0)}
+                        </span>
                     </button>
                     <button className="hover:text-[#bc4b5a] transition-colors cursor-pointer flex items-center">
                         <ShoppingBag size={22} strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6" />
-                        <span className="hidden sm:inline-block ml-[5px] text-[14px] font-medium text-black tracking-widest">(0)</span>
+                        <span className="hidden sm:inline-block ml-[5px] text-[14px] font-medium text-black tracking-widest">({cartItems.reduce((total, item) => total + (item.quantity || 1), 0)})</span>
                     </button>
-                </div>
-            </div>
-
-            {/* Mobile Menu Drawer */}
-            <div className={`
-                lg:hidden fixed inset-0 z-10 transition-transform duration-300 transform bg-white
-                ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-            `}>
-                <div className="pt-32 px-8 flex flex-col space-y-6 text-lg font-medium">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            to={link.path}
-                            className={`flex items-center justify-between py-2 border-b border-gray-100 ${link.name === 'Home' ? 'text-[#bc4b5a]' : 'text-gray-900'}`}
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            <span className="flex items-center">
-                                {link.name}
-                                {link.badge && (
-                                    <span className="ml-2 bg-[#2ecc71] text-white text-[10px] font-bold px-1.5 py-0.5 rounded uppercase">
-                                        {link.badge}
-                                    </span>
-                                )}
-                            </span>
-                            {link.hasDropdown && <ChevronDown size={18} className="text-gray-400" />}
-                        </Link>
-                    ))}
-
-                    {/* Extra Mobile Actions */}
-                    <div className="pt-10 flex flex-col space-y-4">
-                        <button className="flex items-center space-x-3 text-gray-700">
-                            <User size={20} />
-                            <span>My Account</span>
-                        </button>
-                        <div className="flex space-x-6 pt-6 text-gray-400">
-                            <FaFacebookF size={18} className="hover:text-black" />
-                            <FaTwitter size={18} className="hover:text-black" />
-                            <FaInstagram size={20} className="hover:text-black" />
-                        </div>
-                    </div>
                 </div>
             </div>
 
             {/* Overlay for mobile menu */}
-            {isMenuOpen && (
-                <div
-                    className="fixed inset-0 bg-black/40 z-[5]"
-                    onClick={() => setIsMenuOpen(false)}
-                />
-            )}
+            <div
+                className={`fixed inset-0 bg-black/60 z-[60] lg:hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                onClick={() => setIsMenuOpen(false)}
+            />
+
+            {/* Mobile Menu Drawer */}
+            <div className={`
+                lg:hidden fixed top-0 left-0 h-screen w-[85%] sm:w-[350px] z-[70] bg-white transition-transform duration-300 transform shadow-2xl overflow-y-auto flex flex-col
+                ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+            `}>
+                <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
+                    <img src="https://qx-shooz.myshopify.com/cdn/shop/files/logo.png?v=1731409697&width=360" alt="Shooz Logo" className="h-[20px]" />
+                    <button onClick={() => setIsMenuOpen(false)} className="p-2 -mr-2 text-gray-900 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                <div className="px-6 py-4 flex flex-col font-medium text-[15px] grow">
+                    {navLinks.map((link) => (
+                        <div key={link.name} className="flex flex-col border-b border-gray-100 last:border-b-0">
+                            <div
+                                className={`flex items-center justify-between py-4 select-none ${link.name === 'Home' ? 'text-[#bc4b5a]' : 'text-gray-900'}`}
+                                onClick={() => {
+                                    if (link.hasDropdown) toggleSubmenu(link.name);
+                                    else {
+                                        setIsMenuOpen(false);
+                                        navigate(link.path);
+                                    }
+                                }}
+                            >
+                                <div className="flex items-center cursor-pointer">
+                                    {link.name}
+                                    {link.badge && (
+                                        <span className="ml-2 bg-[#2ecc71] text-white text-[10px] font-bold px-1.5 py-0.5 rounded uppercase leading-none mt-[2px]">
+                                            {link.badge}
+                                        </span>
+                                    )}
+                                </div>
+                                {link.hasDropdown && (
+                                    <button className="p-1 cursor-pointer">
+                                        <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${openSubmenu === link.name ? 'rotate-180' : ''}`} />
+                                    </button>
+                                )}
+                            </div>
+                            {/* Mobile Dropdown Content */}
+                            {link.name === 'Pages' && (
+                                <div className={`flex flex-col pl-4 overflow-hidden transition-all duration-300 ${openSubmenu === 'Pages' ? 'max-h-60 pb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="flex flex-col space-y-3.5 text-[14px] text-gray-500 pt-2">
+                                        <Link to="/about" onClick={() => setIsMenuOpen(false)}>About Us 1</Link>
+                                        <Link to="/about2" onClick={() => setIsMenuOpen(false)}>About Us 2</Link>
+                                        <Link to="/about3" onClick={() => setIsMenuOpen(false)}>About Us 3</Link>
+                                        <Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
+                                        <Link to="/faqs" onClick={() => setIsMenuOpen(false)}>Faqs</Link>
+                                    </div>
+                                </div>
+                            )}
+                            {link.name === 'Shop' && (
+                                <div className={`flex flex-col pl-4 overflow-hidden transition-all duration-300 ${openSubmenu === 'Shop' ? 'max-h-[1200px] pb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="flex flex-col space-y-5 pt-3">
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Layout</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['1. Filter Sidebar', '2. Filter Top', '3. Filter Drawer', '4. Without Filter', '5. Collection - 2 columns', '6. Collection - 3 columns', '7. Collection - 4 columns'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Features</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['Banner Image', 'Banner No Image', 'Banner Split', 'Collection list', 'Sub Collection', 'Pagination', 'Infinity', 'Load More'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Hover Style</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['Hover Style 1', 'Hover Style 2', 'Hover Style 3', 'Hover Style 4', 'Hover Style 5', 'Hover Style 6', 'Hover Style 7', 'Hover Style 8'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {link.name === 'Product' && (
+                                <div className={`flex flex-col pl-4 overflow-hidden transition-all duration-300 ${openSubmenu === 'Product' ? 'max-h-[1500px] pb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="flex flex-col space-y-5 pt-3">
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Product Layouts</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['1. Thumbnails - bottom', '2. Thumbnails - left', '3. Thumbnails - right', '4. Without Thumbnails', '5. List - stacked', '6. List - grid', '7. Collage - style 1', '8. Collage - style 2'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Product Type</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['Simple Product', 'Variable Product', 'With Video', 'Sold Out - Coming'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">List Featured 1</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['Sticky ATC', 'Frequently Bought Together', 'Count Down', 'Cross Selling', 'Upsell Popup', 'Low Stock Alert', 'Pickup Store'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">List Featured 2</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['Dropdown Variant', 'Swatch Variant Color', 'Swatch Variant Image', 'Variant Image Square', 'Size Guide', 'Description Accordion', 'Description Tab Center'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {link.name === 'Blog' && (
+                                <div className={`flex flex-col pl-4 overflow-hidden transition-all duration-300 ${openSubmenu === 'Blog' ? 'max-h-[1000px] pb-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="flex flex-col space-y-5 pt-3">
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">List Layout</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['List Left Sidebar', 'List Right Sidebar', 'List Item Basic', 'List Item Overlay', 'List Item Box', 'List Item Classic', 'List Item Classic Box'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Grid Layout</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['Grid Left Sidebar', 'Grid Right Sidebar', 'Grid Item Basic', 'Grid Item Overlay', 'Grid Item Box', 'Grid Item Classic'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[12px] font-bold text-gray-400 mb-2 uppercase tracking-wide">Article</h4>
+                                            <div className="flex flex-col space-y-3 text-[14px] text-gray-600">
+                                                {['Title in image', 'Title after image', 'Title before image', 'Left Sidebar', 'Right Sidebar', 'Title Center', 'Article Video'].map((item, i) => <Link key={i} to="#" onClick={() => setIsMenuOpen(false)}>{item}</Link>)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+
+                    {/* Extra Mobile Actions */}
+                    <div className="pt-8 mt-auto mb-8 flex flex-col space-y-4 shrink-0">
+                        <div className="flex flex-col border-b border-gray-100 pb-2">
+                            <div
+                                className="flex items-center justify-between text-gray-900 font-normal py-2 cursor-pointer select-none"
+                                onClick={() => toggleSubmenu('My Account')}
+                            >
+                                <div className="flex items-center space-x-3">
+                                    <User size={20} />
+                                    <span>My Account</span>
+                                </div>
+                                <ChevronDown size={18} className={`text-gray-400 transition-transform duration-300 ${openSubmenu === 'My Account' ? 'rotate-180' : ''}`} />
+                            </div>
+                            <div className={`flex flex-col pl-9 overflow-hidden transition-all duration-300 ${openSubmenu === 'My Account' ? 'max-h-40 pb-2 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="flex flex-col space-y-3.5 text-[14px] text-gray-500 pt-2">
+                                    {status ? (
+                                        <>
+                                            <span className="font-semibold text-green-600">Hi, {userData?.name || "User"}</span>
+                                            <Link to="#" onClick={(e) => { e.preventDefault(); handleLogout(); }} className="text-red-500">Logout</Link>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                                            <Link to="/register" onClick={() => setIsMenuOpen(false)}>Register</Link>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex space-x-6 pt-4 text-gray-400">
+                            <FaFacebookF size={18} className="hover:text-black cursor-pointer" />
+                            <FaTwitter size={18} className="hover:text-black cursor-pointer" />
+                            <FaInstagram size={20} className="hover:text-black cursor-pointer" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </header>
     );
 };
